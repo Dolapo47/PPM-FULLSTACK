@@ -2,10 +2,11 @@ package com.example.demo.model;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jdk.jfr.DataAmount;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.util.Date;
 
 @Entity
@@ -16,6 +17,8 @@ public class Project {
     @NotBlank(message = "Project name is required")
     private String projectName;
     @NotBlank(message = "Project identifier is required")
+    @Size(min = 4, max = 5, message = "please use 4 to 5 characters")
+    @Column(updatable = false, unique = true)
     private String projectIdentifier;
     @NotBlank(message = "Project description is required")
     private String description;
