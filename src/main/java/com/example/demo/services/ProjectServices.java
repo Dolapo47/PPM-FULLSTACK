@@ -1,12 +1,15 @@
 package com.example.demo.services;
 
 import com.example.demo.exceptions.ProjectIdException;
+import com.example.demo.exceptions.ProjectNotFoundException;
 import com.example.demo.model.Backlog;
 import com.example.demo.model.Project;
 import com.example.demo.model.ProjectTask;
+import com.example.demo.model.User;
 import com.example.demo.repositories.BacklogRepository;
 import com.example.demo.repositories.ProjectRepository;
 import com.example.demo.repositories.ProjectTaskRepository;
+import com.example.demo.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,10 +22,16 @@ public class ProjectServices {
     private BacklogRepository backlogRepository;
     @Autowired
     private ProjectTaskRepository projectTaskRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-    public Project saveOrUpdateProject(Project project){
+    public Project saveOrUpdateProject(Project project, String username){
         try{
+            User user = userRepository.findByUsername(username);
+            project.setUser(user);
+            project.setProjectLeader(user.getUsername());
             project.setProjectIdentifier((project.getProjectIdentifier().toUpperCase()));
+
             if(project.getId() == null){
                 Backlog backlog = new Backlog();
                 project.setBacklog(backlog);
@@ -40,26 +49,23 @@ public class ProjectServices {
 
     }
 
-    public Project findProjectByIdentifier(String projectId){
+    public Project findProjectByIdentifier(String projectId, String username){
         Project project = projectRepository.findByProjectIdentifier(projectId);
         if(project == null){
             throw new ProjectIdException("Project id '"+projectId+"' does not exist");
         }
+        if(!project.getProjectLeader().equals(username)){
+            throw new ProjectNotFoundException("Project not found in your account");
+        }
         return project;
     }
 
-    public Iterable<Project> findAllProjects(){
-        return projectRepository.findAll();
+    public Iterable<Project> findAllProjects(String username){
+        return projectRepository.findAllByProjectLeader(username);
     }
 
-    public void deleteProjectByIdentifier(String projectId){
-        Project project = projectRepository.findByProjectIdentifier(projectId);
-
-        if(project == null){
-            throw new ProjectIdException("Cannot delete project with id '"+projectId+". This project does not exist");
-        }
-
-        projectRepository.delete(project);
+    public void deleteProjectByIdentifier(String projectId, String username){
+        projectRepository.delete(findProjectByIdentifier(projectId, username));
     }
 
     Iterable<ProjectTask>findBacklogById(String id){
