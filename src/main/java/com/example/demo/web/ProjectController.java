@@ -13,7 +13,7 @@ import javax.validation.Valid;
 import java.security.Principal;
 
 @RestController
-@RequestMapping("api/project")
+@RequestMapping("/api/project")
 public class ProjectController {
     @Autowired
     private ProjectServices projectServices;
