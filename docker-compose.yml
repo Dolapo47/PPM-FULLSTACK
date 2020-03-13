@@ -1,0 +1,35 @@
+version: '3.6'
+services:
+  api:
+    container_name: ppmtcourse
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ppmtcourse?serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 1234
+    ports:
+      - 9090:3001
+    depends_on:
+      - postgres
+    networks:
+      - backend
+  postgres:
+    container_name: postgres
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: ppmtcourse
+      POSTGRES_USER: postgres
+    networks:
+      - backend
+    volumes:
+      - my-db:/var/lib/postgresql
+
+networks:
+  backend:
+volumes:
+  my-db:

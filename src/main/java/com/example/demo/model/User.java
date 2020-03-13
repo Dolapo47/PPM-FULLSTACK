@@ -36,6 +36,7 @@ public class User implements UserDetails {
     private Date update_At;
 
     @OneToMany(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER, mappedBy = "user", orphanRemoval = true)
+    @JsonIgnore
     private List <Project> projects = new ArrayList<>();
     public User() {
     }
